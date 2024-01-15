@@ -30,7 +30,7 @@ PROJECT_DIR=$(shell pwd)
 
 # Supported OS and products
 PRODUCTS=BZip2 XZ OpenSSL libFFI
-OS_LIST=iOS tvOS watchOS
+OS_LIST=iOS tvOS watchOS xrOS
 
 # The versions to compile by default.
 # In practice, these should be
@@ -71,6 +71,13 @@ TARGETS-watchOS=watchsimulator.x86_64 watchsimulator.arm64 watchos.arm64_32
 VERSION_MIN-watchOS=4.0
 CFLAGS-watchOS=-mwatchos-version-min=$(VERSION_MIN-watchOS)
 PYTHON_CONFIGURE-watchOS=ac_cv_func_sigaltstack=no
+
+# xrOS targets
+TARGETS-xrOS=xrsimulator.arm64 xros.arm64
+VERSION_MIN-xrOS=1.0
+CFLAGS-watchOS=-mxros-version-min=$(VERSION_MIN-XROS)
+PYTHON_CONFIGURE-watchOS=ac_cv_func_sigaltstack=no
+
 
 # The architecture of the machine doing the build
 HOST_ARCH=$(shell uname -m)

@@ -18,7 +18,7 @@ index dba16e8..630b5d9
  	     | sym* |  plan9* | psp* | sim* | xray* | os68k* | v88r* \
  	     | hiux* | abug | nacl* | netware* | windows* \
 -	     | os9* | macos* | osx* | ios* \
-+	     | os9* | macos* | osx* | ios* | watchos* | tvos* \
++	     | os9* | macos* | osx* | ios* | watchos* | tvos* | xros* \
  	     | mpw* | magic* | mmixware* | mon960* | lnews* \
  	     | amigaos* | amigados* | msdos* | newsos* | unicos* | aof* \
  	     | aos* | aros* | cloudabi* | sortix* | twizzler* \
@@ -26,13 +26,14 @@ index dba16e8..630b5d9
  		;;
  	os2-emx)
  		;;
-+	ios*-simulator | tvos*-simulator | watchos*-simulator)
++	ios*-simulator | tvos*-simulator | watchos*-simulator | xros*-simulator)
 +		;;
  	*-eabi* | *-gnueabi*)
  		;;
  	-*)
+
 diff --git a/generate-darwin-source-and-headers.py b/generate-darwin-source-and-headers.py
-index 5b60ccc..c801dc0 100755
+index 5b60ccc..ef2f551 100755
 --- a/generate-darwin-source-and-headers.py
 +++ b/generate-darwin-source-and-headers.py
 @@ -48,7 +48,6 @@ class armv7_platform(Platform):
@@ -147,7 +148,7 @@ index 5b60ccc..c801dc0 100755
      target = 'armv7k-apple-watchos'
      directory = 'darwin_watchos'
      sdk = 'watchos'
-@@ -161,7 +147,6 @@ class watchos_device_armv7k_platform(armv7_platform):
+@@ -161,13 +147,32 @@ class watchos_device_armv7k_platform(armv7_platform):
  
  
  class watchos_device_arm64_32_platform(arm64_platform):
@@ -155,7 +156,33 @@ index 5b60ccc..c801dc0 100755
      target = 'arm64_32-apple-watchos'
      directory = 'darwin_watchos'
      sdk = 'watchos'
-@@ -229,7 +214,15 @@ def build_target(platform, platform_headers):
+     arch = 'arm64_32'
+     version_min = '-mwatchos-version-min=4.0'
+ 
++class xros_device_arm64_platform(arm64_platform):
++    target = 'arm64-apple-xros'
++    directory = 'darwin_xros'
++    sdk = 'xros'
++    arch = 'arm64'
++    version_min = ''
++
++class xros_simulator_arm64_platform(arm64_platform):
++    target = 'arm64-apple-xros-simulator'
++    directory = 'darwin_xros'
++    sdk = 'xrsimulator'
++    arch = 'arm64'
++    version_min = ''
++
++class xros_simulator_x86_64_platform(arm64_platform):
++    target = 'x86_64-apple-xros-simulator'
++    directory = 'darwin_xros'
++    sdk = 'xrsimulator'
++    arch = 'x86_64'
++    version_min = ''
+ 
+ def mkdir_p(path):
+     try:
+@@ -229,7 +234,15 @@ def build_target(platform, platform_headers):
      working_dir = os.getcwd()
      try:
          os.chdir(build_dir)
@@ -172,3 +199,50 @@ index 5b60ccc..c801dc0 100755
      finally:
          os.chdir(working_dir)
  
+@@ -250,6 +263,7 @@ def generate_source_and_headers(
+     generate_ios=True,
+     generate_tvos=True,
+     generate_watchos=True,
++    generate_xros=True,
+ ):
+     copy_files('src', 'darwin_common/src', pattern='*.c')
+     copy_files('include', 'darwin_common/include', pattern='*.h')
+@@ -273,6 +287,10 @@ def generate_source_and_headers(
+         copy_src_platform_files(watchos_simulator_arm64_platform)
+         copy_src_platform_files(watchos_device_armv7k_platform)
+         copy_src_platform_files(watchos_device_arm64_32_platform)
++    if generate_xros:
++        copy_src_platform_files(xros_simulator_x86_64_platform)
++        copy_src_platform_files(xros_simulator_arm64_platform)
++        copy_src_platform_files(xros_device_arm64_platform)
+ 
+     platform_headers = collections.defaultdict(set)
+ 
+@@ -295,6 +313,9 @@ def generate_source_and_headers(
+         build_target(watchos_simulator_arm64_platform, platform_headers)
+         build_target(watchos_device_armv7k_platform, platform_headers)
+         build_target(watchos_device_arm64_32_platform, platform_headers)
++    if generate_xros:
++        build_target(xros_simulator_arm64_platform, platform_headers)
++        build_target(xros_device_arm64_platform, platform_headers)
+ 
+     mkdir_p('darwin_common/include')
+     for header_name, tag_tuples in platform_headers.items():
+@@ -309,11 +331,13 @@ if __name__ == '__main__':
+     parser.add_argument('--only-osx', action='store_true', default=False)
+     parser.add_argument('--only-tvos', action='store_true', default=False)
+     parser.add_argument('--only-watchos', action='store_true', default=False)
++    parser.add_argument('--only-xros', action='store_true', default=False)
+     args = parser.parse_args()
+ 
+     generate_source_and_headers(
+-        generate_osx=not args.only_ios and not args.only_tvos and not args.only_watchos,
+-        generate_ios=not args.only_osx and not args.only_tvos and not args.only_watchos,
+-        generate_tvos=not args.only_ios and not args.only_osx and not args.only_watchos,
+-        generate_watchos=not args.only_ios and not args.only_osx and not args.only_tvos,
++        generate_osx=not args.only_ios and not args.only_tvos and not args.only_watchos and not args.only_xros,
++        generate_ios=not args.only_osx and not args.only_tvos and not args.only_watchos and not args.only_xros,
++        generate_tvos=not args.only_ios and not args.only_osx and not args.only_watchos and not args.only_xros,
++        generate_watchos=not args.only_ios and not args.only_osx and not args.only_tvos and not args.only_xros,
++        generate_xros=not args.only_ios and not args.only_tvos and not args.only_watchos and not args.only_osx,
+     )
