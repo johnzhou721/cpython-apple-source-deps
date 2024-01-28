@@ -103,7 +103,7 @@ index 9921b0d..5b60ccc 100755
 -class desktop32_platform(Platform):
 +class desktop_x86_64_platform(x86_64_platform):
 +    triple = 'x86_64-apple-darwin10'
-+    target = 'x86_64-apple-macos'
++    target = 'x86_64-apple-ios14.0-macabi'
      directory = 'darwin_osx'
      sdk = 'macosx'
 -    arch = 'i386'
@@ -119,7 +119,7 @@ index 9921b0d..5b60ccc 100755
 -class desktop64_platform(Platform):
 +class desktop_arm64_platform(arm64_platform):
 +    triple = 'aarch64-apple-darwin20'
-+    target = 'arm64-apple-macos'
++    target = 'arm64-apple-ios14.0-macabi'
      directory = 'darwin_osx'
      sdk = 'macosx'
 -    arch = 'x86_64'

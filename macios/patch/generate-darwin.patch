@@ -1,0 +1,25 @@
+--- a/generate-darwin-source-and-headers.py
++++ b/generate-darwin-source-and-headers.py
+@@ -89,18 +89,18 @@
+ 
+ class desktop_x86_64_platform(x86_64_platform):
+     triple = 'x86_64-apple-darwin10'
++    target = 'x86_64-apple-ios14.0-macabi'
+-    target = 'x86_64-apple-macos'
+     directory = 'darwin_osx'
+     sdk = 'macosx'
++    version_min = '-mios-version-min=14.0'
+-    version_min = '-mmacosx-version-min=10.6'
+ 
+ 
+ class desktop_arm64_platform(arm64_platform):
+     triple = 'aarch64-apple-darwin20'
++    target = 'arm64-apple-ios14.0-macabi'
+-    target = 'arm64-apple-macos'
+     directory = 'darwin_osx'
+     sdk = 'macosx'
++    version_min = '-mios-version-min=14.0'
+-    version_min = '-mmacosx-version-min=11.0'
+ 
+ 
+ class tvos_simulator_x86_64_platform(x86_64_platform):
