@@ -68,7 +68,7 @@ clean:
 
 # Full clean - includes all downloaded products
 distclean: clean
-	rm -rf downloads
+	rm -rf downloads macios.tar.gz
 
 #install/macOS/macosx/python-3.13.0a1/bin/python3:
 #	sh macOS.sh
@@ -164,7 +164,7 @@ target=$1
 os=$2
 
 OS_LOWER-$(target)=$(shell echo $(os) | tr '[:upper:]' '[:lower:]')
-WHEEL_TAG-$(target)=py3-none-$$(OS_LOWER-$(target))_$$(shell echo $$(VERSION_MIN-$(os))_$(target) | sed "s/\./_/g")
+WHEEL_TAG-$(target)=py3-none-$$(OS_LOWER-$(target))_$$(shell echo $$(VERSION_MIN-$(os))_catalyst.$$(ARCH-$(target)) | sed "s/\./_/g")
 
 # $(target) can be broken up into is composed of $(SDK).$(ARCH)
 SDK-$(target)=$$(basename $(target))
@@ -284,7 +284,7 @@ $$(XZ_SRCDIR-$(target))/Makefile: downloads/xz-$(XZ_VERSION).tar.gz $(PROJECT_DI
 			LDFLAGS="$$(LDFLAGS-$(target))" \
 			--disable-shared \
 			--enable-static \
-			--host=$$(TARGET_TRI-$(target)) \
+			--host=$$(ARCH-$$(target))-apple-ios14.0-macabi \
 			--prefix="$$(XZ_INSTALL-$(target))" \
 			2>&1 | tee -a ../xz-$(XZ_VERSION).config.log
 
@@ -398,7 +398,7 @@ $$(OPENSSL_SSL_LIB-$(target)): $$(OPENSSL_SRCDIR-$(target))/libssl.a
 		make install_sw \
 			2>&1 | tee -a ../openssl-$(OPENSSL_VERSION).install.log
 
-$$(OPENSSL_WHEEL-$(target)): $$(OPENSSL_LIB-$(target)) $$(BDIST_WHEEL)
+$$(OPENSSL_WHEEL-$(target)): $$(OPENSSL_SSL_LIB-$(target)) $$(OPENSSL_CRYPTO_LIB-$(target)) $$(BDIST_WHEEL)
 	@echo ">>> Build OpenSSL wheel for $(target)"
 	mkdir -p $$(OPENSSL_WHEEL_DISTINFO-$(target))
 	mkdir -p $$(OPENSSL_INSTALL-$(target))/wheel/opt
@@ -547,7 +547,7 @@ $$(PYTHON_SRCDIR-$(target))/Makefile: \
 			LIBFFI_LIB="ffi" \
 			LIBFFI_CFLAGS="-I$$(LIBFFI_DIR-$(os))/include" \
 			LIBFFI_LDFLAGS="-L$$(LIBFFI_DIR-$(os))/lib -lffi" \
-			--host=$$(TARGET_TRI-$(target)) \
+			--host=$$(TARGET_TRIPLE-$(target)) \
 			--build=$(HOST_ARCH)-apple-darwin \
 			--with-build-python=$(PROJECT_DIR)/install/macOS/macosx/python-3.13.0a1/bin/python$(PYTHON_VER) \
 			--prefix="$$(PYTHON_INSTALL-$(target))" \
