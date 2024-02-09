@@ -53,14 +53,15 @@ BDIST_WHEEL=$(HOST_PYTHON)/lib/python$(PYTHON_VER)/site-packages/wheel/bdist_whe
 # linked into the support package.
 PATH=/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:$(PROJECT_DIR)/alias/
 
-# Build for all operating systems
-all: $(OS_LIST)
+# archive alias
+all: archive
 
 .PHONY: \
 	all clean distclean update-patch vars wheels \
 	$(foreach product,$(PRODUCTS),$(product) $(foreach os,$(OS_LIST),$(product)-$(os) clean-$(product) clean-$(product)-$(os))) \
 	$(foreach product,$(PRODUCTS),$(product)-wheels $(foreach os,$(OS_LIST),$(product)-wheels-$(os) clean-$(product)-wheels-$(os))) \
-	$(foreach os,$(OS_LIST),$(os) wheels-$(os) clean-$(os) clean-wheels-$(os) vars-$(os))
+	$(foreach os,$(OS_LIST),$(os) wheels-$(os) clean-$(os) clean-wheels-$(os) vars-$(os)) \
+	archive
 
 # Clean all builds
 clean:
@@ -893,3 +894,7 @@ dev-clean-Python: $(foreach os,$(OS_LIST),dev-clean-Python-$(os))
 
 # Expand the build macro for every OS
 $(foreach os,$(OS_LIST),$(eval $(call build,$(os))))
+
+archive: $(OS_LIST)
+	-mkdir -p dist
+	tar -czvf dist/macios.tar.gz merge
