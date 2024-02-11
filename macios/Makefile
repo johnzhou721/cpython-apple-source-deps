@@ -799,9 +799,13 @@ $$(LIBFFI_SRCDIR-$(os))/darwin_common/include/ffi.h: downloads/libffi-$(LIBFFI_V
 	tar zxf $$< --strip-components 1 -C $$(LIBFFI_SRCDIR-$(os))
 	# Patch the build to add support for new platforms
 	cd $$(LIBFFI_SRCDIR-$(os)) && patch -p1 < $(PROJECT_DIR)/patch/libffi-$(LIBFFI_VERSION).patch
-	# Configure the build
+	# Generate the ios headers
 	cd $$(LIBFFI_SRCDIR-$(os)) && \
-		$(HOST_PYTHON_EXE) generate-darwin-source-and-headers.py
+		$(HOST_PYTHON_EXE) generate-darwin-source-and-headers.py --only-ios \
+		2>&1 | tee -a ../libffi-$(LIBFFI_VERSION).config.log
+	# Generate the macOS source code - use ios headers to prevent unusable apis
+	cd $$(LIBFFI_SRCDIR-$(os)) && \
+		$(HOST_PYTHON_EXE) generate-darwin-source-and-headers.py --only-osx \
 		2>&1 | tee -a ../libffi-$(LIBFFI_VERSION).config.log
 
 endif
